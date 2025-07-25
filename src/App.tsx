@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Button } from './components/ui/button';
 import { Card } from './components/ui/card';
 import { Badge } from './components/ui/badge';
+import { PaymentModal } from './components/PaymentModal';
 import { 
   Brain, 
   Heart, 
@@ -95,6 +96,8 @@ function App() {
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState<TestAnswer[]>([]);
   const [showPremium, setShowPremium] = useState(false);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [hasPurchased, setHasPurchased] = useState(false);
 
   // Функция для начала теста
   const startTest = () => {
@@ -132,27 +135,83 @@ function App() {
     }
   };
 
-  // Простой алгоритм анализа результатов
+  // Улучшенный алгоритм анализа результатов
   const analyzeResults = () => {
     const totalScore = answers.reduce((sum, answer) => sum + answer.answer, 0);
     const avgScore = totalScore / answers.length;
     
-    // Определяем тип личности на основе ответов
+    // Анализируем ответы по группам вопросов
+    const creativityQuestions = [0, 1, 2, 4, 8, 11, 16, 22]; // Вопросы о креативности
+    const emotionalQuestions = [3, 7, 9, 12, 18, 20, 26, 28]; // Вопросы об эмоциях
+    const structureQuestions = [6, 13, 17, 23, 24]; // Вопросы о структуре
+    const intuitionQuestions = [14, 15, 19, 21, 27, 29]; // Вопросы об интуиции
+    
+    const getGroupScore = (questionIndices: number[]) => {
+      const groupAnswers = answers.filter(a => questionIndices.includes(a.questionIndex));
+      return groupAnswers.reduce((sum, a) => sum + a.answer, 0) / groupAnswers.length;
+    };
+    
+    const creativityScore = getGroupScore(creativityQuestions);
+    const emotionalScore = getGroupScore(emotionalQuestions);
+    const structureScore = getGroupScore(structureQuestions);
+    const intuitionScore = getGroupScore(intuitionQuestions);
+    
+    // Определяем тип личности на основе доминирующих черт
     let personalityType = '';
     let description = '';
+    let mbtiType = '';
     
-    if (avgScore >= 4) {
+    if (creativityScore >= 4 && intuitionScore >= 4) {
       personalityType = 'Исследователь-Новатор';
-      description = 'Вы творческая личность, которая любит экспериментировать и находить нестандартные решения. Ваша сила в способности видеть возможности там, где другие видят препятствия.';
-    } else if (avgScore >= 3) {
-      personalityType = 'Гармонизатор-Аналитик';
-      description = 'Вы стремитесь к балансу между логикой и интуицией. Умеете анализировать ситуации и находить оптимальные решения, учитывая интересы всех сторон.';
+      mbtiType = 'ENFP/ENTP';
+      description = 'Вы творческая личность с развитой интуицией. Любите экспериментировать и находить нестандартные решения. Ваша сила — в способности видеть скрытые возможности и вдохновлять других на изменения.';
+    } else if (emotionalScore >= 4 && structureScore <= 3) {
+      personalityType = 'Эмпат-Гармонизатор';
+      mbtiType = 'INFP/ISFP';
+      description = 'Вы чувствительная и эмоционально развитая личность. Хорошо понимаете людей и стремитесь к гармонии. Ваша сила — в способности создавать тёплые отношения и поддерживать других.';
+    } else if (structureScore >= 4 && emotionalScore >= 3.5) {
+      personalityType = 'Организатор-Лидер';
+      mbtiType = 'ENTJ/ESTJ';
+      description = 'Вы прирождённый лидер с хорошими организаторскими способностями. Умеете структурировать процессы и мотивировать команду. Ваша сила — в способности превращать идеи в реальность.';
+    } else if (intuitionScore >= 4 && emotionalScore >= 4) {
+      personalityType = 'Мудрец-Советник';
+      mbtiType = 'INFJ/INTJ';
+      description = 'Вы глубокий мыслитель с развитой интуицией. Хорошо понимаете мотивы людей и видите долгосрочные перспективы. Ваша сила — в способности давать мудрые советы и предвидеть будущее.';
     } else {
       personalityType = 'Стабилизатор-Практик';
-      description = 'Вы цените стабильность и предпочитаете проверенные методы. Ваша сила в способности создавать надёжные системы и поддерживать порядок.';
+      mbtiType = 'ISFJ/ISTJ';
+      description = 'Вы надёжная и практичная личность. Цените стабильность и предпочитаете проверенные методы. Ваша сила — в способности создавать порядок и поддерживать традиции.';
     }
     
-    return { personalityType, description, avgScore };
+    // Рассчитываем показатели по сферам жизни
+    const sphereScores = {
+      personality: Math.round(((creativityScore + intuitionScore) / 2) * 20), // 0-100
+      emotions: Math.round(emotionalScore * 20),
+      work: Math.round(((structureScore + avgScore) / 2) * 20),
+      potential: Math.round(((creativityScore + intuitionScore + emotionalScore) / 3) * 20),
+      strategy: Math.round(((structureScore + avgScore) / 2) * 20)
+    };
+    
+    // Персональные характеристики на основе данных пользователя
+    const personalTraits = {
+      introversion: userData.energyTime === 'evening' ? 75 : userData.energyTime === 'morning' ? 45 : 60,
+      intuition: Math.round(intuitionScore * 20),
+      empathy: Math.round(emotionalScore * 20),
+      flexibility: userData.workStyle === 'mixed' ? 85 : userData.workStyle === 'solo' ? 65 : 70
+    };
+    
+    return { 
+      personalityType, 
+      description, 
+      mbtiType,
+      avgScore, 
+      sphereScores,
+      personalTraits,
+      creativityScore,
+      emotionalScore,
+      structureScore,
+      intuitionScore
+    };
   };
 
   const results = currentStep === 'result' ? analyzeResults() : null;
@@ -548,7 +607,7 @@ function App() {
                   </div>
 
                   <Button 
-                    onClick={() => setShowPremium(true)}
+                    onClick={() => setShowPaymentModal(true)}
                     className="w-full bg-gradient-to-r from-indigo-500 to-pink-500 hover:from-indigo-600 hover:to-pink-600 text-white"
                   >
                     <Download className="w-4 h-4 mr-2" />
@@ -572,19 +631,24 @@ function App() {
           </div>
 
           {/* Заблюренный превью полного отчёта */}
-          {showPremium && (
+          {(showPremium || hasPurchased) && (
             <div className="mt-12">
               <Card className="glass-strong p-8 relative">
-                <div className="absolute inset-0 bg-white/50 backdrop-blur-sm z-10 flex items-center justify-center">
-                  <div className="text-center">
-                    <Lock className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                    <h3 className="text-xl font-semibold text-gray-700 mb-2">Полный отчёт</h3>
-                    <p className="text-gray-600 mb-4">Разблокируйте детальный анализ за 300 ₽</p>
-                    <Button className="bg-gradient-to-r from-indigo-500 to-pink-500 hover:from-indigo-600 hover:to-pink-600 text-white">
-                      Купить полный отчёт
-                    </Button>
+                {!hasPurchased && (
+                  <div className="absolute inset-0 bg-white/50 backdrop-blur-sm z-10 flex items-center justify-center">
+                    <div className="text-center">
+                      <Lock className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                      <h3 className="text-xl font-semibold text-gray-700 mb-2">Полный отчёт</h3>
+                      <p className="text-gray-600 mb-4">Разблокируйте детальный анализ за 300 ₽</p>
+                      <Button 
+                        onClick={() => setShowPaymentModal(true)}
+                        className="bg-gradient-to-r from-indigo-500 to-pink-500 hover:from-indigo-600 hover:to-pink-600 text-white"
+                      >
+                        Купить полный отчёт
+                      </Button>
+                    </div>
                   </div>
-                </div>
+                )}
                 
                 <h2 className="text-2xl font-bold mb-6">Детальный анализ личности</h2>
                 
@@ -636,6 +700,8 @@ function App() {
                   workStyle: ''
                 });
                 setShowPremium(false);
+                setShowPaymentModal(false);
+                setHasPurchased(false);
               }}
               variant="outline"
               size="lg"
@@ -643,6 +709,17 @@ function App() {
               Пройти тест ещё раз
             </Button>
           </div>
+
+          {/* Модальное окно оплаты */}
+          <PaymentModal
+            isOpen={showPaymentModal}
+            onClose={() => setShowPaymentModal(false)}
+            onPaymentSuccess={() => {
+              setHasPurchased(true);
+              setShowPremium(true);
+            }}
+            userName={userData.name}
+          />
         </div>
       </div>
     );
@@ -1146,6 +1223,17 @@ function App() {
           </div>
         </div>
       </footer>
+
+      {/* Модальное окно оплаты */}
+      <PaymentModal
+        isOpen={showPaymentModal}
+        onClose={() => setShowPaymentModal(false)}
+        onPaymentSuccess={() => {
+          setHasPurchased(true);
+          setShowPremium(true);
+        }}
+        userName={userData.name}
+      />
     </div>
   );
 }
