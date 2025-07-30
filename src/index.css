@@ -1,0 +1,271 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --primary: 155 60% 25%;
+  --accent: 145 50% 55%;
+  --background: 120 25% 98%;
+  --foreground: 155 100% 5%;
+  --card: 0 0% 100%;
+  --card-foreground: 155 100% 5%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 155 100% 5%;
+  --primary-foreground: 0 0% 98%;
+  --secondary: 120 10% 95%;
+  --secondary-foreground: 155 20% 15%;
+  --muted: 120 10% 95%;
+  --muted-foreground: 155 10% 45%;
+  --accent-foreground: 0 0% 9%;
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 0 0% 98%;
+  --border: 120 15% 85%;
+  --input: 120 15% 90%;
+  --ring: 155 60% 25%;
+  --radius: 1rem;
+}
+
+* {
+  border-color: hsl(var(--border));
+}
+
+body {
+  color: hsl(var(--foreground));
+  background: hsl(var(--background));
+  font-family: Inter, sans-serif;
+  font-feature-settings: 'cv11', 'ss01';
+  font-variation-settings: 'opsz' 32;
+}
+
+/* Nature-inspired hero background */
+.nature-hero {
+  background: linear-gradient(135deg, #1B4332 0%, #2D5A3D 50%, #40916C 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.nature-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: 
+    radial-gradient(circle at 20% 30%, rgb(82 183 136 / 30%) 0%, transparent 50%),
+    radial-gradient(circle at 80% 70%, rgb(64 145 108 / 20%) 0%, transparent 50%),
+    radial-gradient(circle at 40% 80%, rgb(45 90 61 / 40%) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+/* Leaf decorative elements */
+.leaf-decoration {
+  position: absolute;
+  opacity: 10%;
+  pointer-events: none;
+}
+
+.leaf-decoration::before {
+  content: '🌿';
+  font-size: 2rem;
+  position: absolute;
+  animation: float-leaf 8s ease-in-out infinite;
+}
+
+.leaf-decoration:nth-child(2)::before {
+  content: '🍃';
+  animation-delay: -2s;
+}
+
+.leaf-decoration:nth-child(3)::before {
+  content: '🌱';
+  animation-delay: -4s;
+}
+
+/* Clean white cards */
+.nature-card {
+  background: white;
+  border-radius: 1.5rem;
+  box-shadow: 0 4px 20px rgb(27 67 50 / 8%);
+  border: 1px solid rgb(82 183 136 / 10%);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.nature-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 40px rgb(27 67 50 / 12%);
+}
+
+/* Typography styles */
+.nature-title {
+  font-weight: 800;
+  font-size: clamp(2.5rem, 8vw, 6rem);
+  line-height: 0.9;
+  letter-spacing: -0.02em;
+  color: white;
+  text-shadow: 0 2px 4px rgb(0 0 0 / 10%);
+}
+
+.nature-subtitle {
+  font-weight: 500;
+  font-size: clamp(1.1rem, 3vw, 1.5rem);
+  line-height: 1.4;
+  color: rgb(255 255 255 / 90%);
+}
+
+.nature-heading {
+  font-weight: 700;
+  color: hsl(var(--primary));
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+}
+
+/* Button styles */
+.nature-button {
+  background: white;
+  color: hsl(var(--primary));
+  font-weight: 600;
+  padding: 1rem 2rem;
+  border-radius: 1rem;
+  border: none;
+  box-shadow: 0 4px 20px rgb(27 67 50 / 15%);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+}
+
+.nature-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgb(27 67 50 / 25%);
+}
+
+.nature-button-primary {
+  background: hsl(var(--primary));
+  color: white;
+}
+
+.nature-button-primary:hover {
+  background: hsl(155deg 60% 20%);
+}
+
+/* Accent elements */
+.nature-accent {
+  color: hsl(var(--accent));
+  font-weight: 600;
+}
+
+.nature-badge {
+  background: rgb(82 183 136 / 10%);
+  color: hsl(var(--accent));
+  padding: 0.5rem 1rem;
+  border-radius: 2rem;
+  font-weight: 500;
+  font-size: 0.875rem;
+  border: 1px solid rgb(82 183 136 / 20%);
+}
+
+/* Animations */
+@keyframes float-leaf {
+  0%, 100% { 
+    transform: translateY(0) rotate(0deg); 
+  }
+
+  33% { 
+    transform: translateY(-10px) rotate(5deg); 
+  }
+
+  66% { 
+    transform: translateY(-5px) rotate(-3deg); 
+  }
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0%;
+    transform: translateY(30px);
+  }
+
+  to {
+    opacity: 100%;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.6s ease-out forwards;
+}
+
+/* Grid layouts */
+.nature-grid {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+}
+
+@media (width >= 768px) {
+  .nature-grid {
+    gap: 2rem;
+  }
+}
+
+/* Progress indicators */
+.nature-progress {
+  background: rgb(82 183 136 / 20%);
+  border-radius: 1rem;
+  overflow: hidden;
+}
+
+.nature-progress-bar {
+  background: linear-gradient(90deg, hsl(var(--accent)) 0%, hsl(var(--primary)) 100%);
+  height: 0.5rem;
+  border-radius: 1rem;
+  transition: width 0.3s ease;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgb(82 183 136 / 10%);
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--accent));
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--primary));
+}
+
+/* Form elements */
+.nature-input {
+  background: white;
+  border: 2px solid rgb(82 183 136 / 20%);
+  border-radius: 1rem;
+  padding: 1rem;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.nature-input:focus {
+  outline: none;
+  border-color: hsl(var(--accent));
+  box-shadow: 0 0 0 3px rgb(82 183 136 / 10%);
+}
+
+/* Stats and numbers */
+.nature-stat {
+  font-weight: 800;
+  font-size: 2.5rem;
+  color: hsl(var(--primary));
+  line-height: 1;
+}
+
+.nature-stat-label {
+  font-weight: 500;
+  color: hsl(var(--muted-foreground));
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
